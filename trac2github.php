@@ -8,12 +8,14 @@
  * @license BSD
  */
 
-if (!file_exists("./config.php")) {
+$scriptDirectory = dirname(__FILE__) . '/';
+$configFile = $scriptDirectory . 'config.php';
+if (!file_exists($configFile)) {
 	echo "ERROR! Missing configuration file config.php. You can copy it from config.php.sample and edit with your data\n";
 	exit;
 
 }
-require "./config.php";
+require $configFile;
 
 // DO NOT EDIT BELOW
 
