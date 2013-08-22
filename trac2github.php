@@ -133,7 +133,7 @@ if (empty($convert_revision) && !empty($convert_revision_file)) {
 	include $convert_revision_file;
 	$convert_revision_regexp = array();
 	foreach ($convert_revision as $svnRev => $gitRev) {
-		$convert_revision_regexp['/\[' . $svnRev . '\]/'] = $gitRev;
+		$convert_revision_regexp['/\br' . $svnRev . '\b/'] = $gitRev;
 	}
 }
 
@@ -188,11 +188,6 @@ if (!$skip_tickets) {
 			$password = $default_password;
 		}
 
-		// replace svn revision with git revision
-		if (!empty($convert_revision_regexp)) {
-			$row['description'] = preg_replace(array_keys($convert_revision_regexp), $convert_revision_regexp, $row['description']);
-		}
-
 	        // There is a strange issue with summaries containing percent signs...
 		$date = date ('g.ia, l, jS F Y', substr ($row['time'], 0, -6));
 		$issueData = array(
@@ -239,7 +234,9 @@ if (!$skip_comments) {
 		
 		// replace svn revision with git revision
 		if (!empty($convert_revision_regexp)) {
-			$text = preg_replace(array_keys($convert_revision_regexp), $convert_revision_regexp, $text);
+			if (preg_match ('/\br([0-9]+)\b/', $text)) {	// Only bother running this conversion if a r... marker is actually there, as it could be quite a large regexp
+				$text = preg_replace(array_keys($convert_revision_regexp), $convert_revision_regexp, $text);
+			}
 		}
 
 		// set github username and password to post comment to ticket
@@ -347,6 +344,13 @@ function github_update_issue($issue, $data) {
 }
 
 function translate_markup($data) {
+
+	// Replace SVN revision with Git revision
+	global $convert_revision_regexp;
+	if (!empty($convert_revision_regexp)) {
+		$data = preg_replace(array_keys($convert_revision_regexp), array_values ($convert_revision_regexp), $data);
+	}
+
     // Replace code blocks with an associated language
     $data = preg_replace('/\{\{\{(\s*#!(\w+))?/m', '```$2', $data);
     $data = preg_replace('/\}\}\}/', '```', $data);
