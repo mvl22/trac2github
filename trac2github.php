@@ -136,6 +136,7 @@ if (empty($convert_revision) && !empty($convert_revision_file)) {
 	$convert_revision_regexp = array();
 	foreach ($convert_revision as $svnRev => $gitRev) {
 		$convert_revision_regexp['/\br' . $svnRev . '\b/'] = $gitRev;
+		$convert_revision_regexp['/\s\[' . $svnRev . '\][\s.,;]/'] = ' ' . $gitRev . ' ';
 	}
 }
 
@@ -236,7 +237,7 @@ if (!$skip_comments) {
 		
 		// replace svn revision with git revision
 		if (!empty($convert_revision_regexp)) {
-			if (preg_match ('/\br([0-9]+)\b/', $text)) {	// Only bother running this conversion if a r... marker is actually there, as it could be quite a large regexp
+			if (preg_match ('/\br([0-9]+)\b/', $text) || preg_match ('/\s\[([0-9]+)\][\s.,;]\b/', $text)) {	// Only bother running this conversion if a r... marker is actually there, as it could be quite a large regexp
 				$text = preg_replace(array_keys($convert_revision_regexp), $convert_revision_regexp, $text);
 			}
 		}
