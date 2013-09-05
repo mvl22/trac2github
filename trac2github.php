@@ -195,9 +195,9 @@ if (!$skip_tickets) {
 		$date = date ('g.ia, l, jS F Y', substr ($row['time'], 0, -6));
 		$issueData = array(
 			'title' => utf8_encode($row['summary']),
-			'body' => empty($row['description']) ? 'None' : "**[Submitted to the original trac issue database at {$date}]**\n\n" . translate_markup(utf8_encode($row['description'])),
+			'body' => "**[Submitted to the original trac issue database at {$date}]**\n\n" . (empty($row['description']) ? '[No description]' : translate_markup(utf8_encode($row['description']))),
 			'assignee' => $assignee,
-			'labels' => $ticketLabels
+			'labels' => $ticketLabels,
 		);
 		// set milestone only if ticket is assigned to it
 		if (!empty($row['milestone'])) {
